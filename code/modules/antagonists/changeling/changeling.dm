@@ -37,7 +37,7 @@
 	/// The amount of DMA gained using absorb, not DNA sting. Start with one (your original DNA)
 	var/true_absorbs = 0
 	/// The number of chemicals the changeling currently has.
-	var/chem_charges = 20
+	var/chem_charges = 75
 	/// The max chemical storage the changeling currently has.
 	var/total_chem_storage = 75
 	/// The chemical recharge rate per life tick.

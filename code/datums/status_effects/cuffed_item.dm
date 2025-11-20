@@ -139,6 +139,12 @@
 	SIGNAL_HANDLER
 	linked_alert.update_appearance(UPDATE_OVERLAYS)
 
+///Force remove the reference to the pair of handcuffs used to bind the item
+/datum/status_effect/cuffed_item/proc/qdel_cuffs(obj/item/item, mob/living/user)
+	SIGNAL_HANDLER
+	if(!QDELETED(cuffs))
+		qdel(cuffs)
+
 ///The status alert linked to the cuffed_item status effect
 /atom/movable/screen/alert/status_effect/cuffed_item
 	name = "Cuffed Item"

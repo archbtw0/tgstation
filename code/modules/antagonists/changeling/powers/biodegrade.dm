@@ -3,8 +3,8 @@
 	desc = "Dissolves restraints or other objects preventing free movement. Costs 30 chemicals."
 	helptext = "This is obvious to nearby people, and can destroy standard restraints and closets."
 	button_icon_state = "biodegrade"
-	chemical_cost = 30
-	dna_cost = 2
+	chemical_cost = 1
+	dna_cost = CHANGELING_POWER_INNATE
 	req_human = TRUE
 	disabled_by_fire = FALSE
 	var/static/bio_acid_path = /datum/reagent/toxin/acid/bio_acid
@@ -17,38 +17,46 @@
 	var/obj/handcuffs = user.get_item_by_slot(ITEM_SLOT_HANDCUFFED)
 	var/obj/legcuffs = user.get_item_by_slot(ITEM_SLOT_LEGCUFFED)
 	var/obj/item/clothing/suit/straitjacket = user.get_item_by_slot(ITEM_SLOT_OCLOTHING)
-	//var/obj/item/clothing/shoes/sneakers/orange/cuffedshoes = user.get_item_by_slot(ITEM_SLOT_FEET)
-	var/datum/status_effect/cuffed_item/cuffed_item = user.has_status_effect(/datum/status_effect/cuffed_item)
+	var/obj/item/clothing/shoes/sneakers/orange/prisoner_shoes = user.get_item_by_slot(ITEM_SLOT_FEET)
 	var/obj/some_manner_of_cage = astype(user.loc, /obj)
 	var/mob/living/space_invader = user.pulledby
-
 	if(!straitjacket?.breakouttime)
 		straitjacket = null
-	/*if(!cuffedshoes?.attached_cuffs)
-		cuffedshoes = null*/
-	if(!handcuffs && !legcuffs && !straitjacket && !some_manner_of_cage && !space_invader && !cuffed_item) // && !cuffedshoes
+	/*var/obj/item/shell = affected_mob.get_item_by_slot(ITEM_SLOT_BACK)
+		if(!istype(shell, /obj/item/storage/backpack/snail))
+			shell = null
+		if(!shell && SPT_PROB(2.5, seconds_per_tick))
+			if(affected_mob.dropItemToGround(affected_mob.get_item_by_slot(ITEM_SLOT_BACK)))*/
+	if (!prisoner_shoes)
+		return ..() // continue
+	if(prisoner_shoes && !istype(prisoner_shoes)) // !prisoner_shoes.attached_cuffs
+		. = prisoner_shoes
+		if (!prisoner_shoes.attached_cuffs)
+			to_chat(world, span_boldannounce("[prisoner_shoes]"), MESSAGE_TYPE_DEBUG)
+			prisoner_shoes = null
+			//prisoner_shoes.remove_cuffs()
+
+	if(!handcuffs && !legcuffs && !straitjacket && !prisoner_shoes && !some_manner_of_cage && !space_invader)
 		user.balloon_alert(user, "already free!")
 		return .
 	..()
-
 	if(handcuffs)
 		restraints.Add(handcuffs)
 	if(legcuffs)
 		restraints.Add(legcuffs)
 	if(straitjacket)
 		restraints.Add(straitjacket)
-	if(cuffed_item)
-		restraints.Add(cuffed_item)
-	/*if(cuffedshoes)
-		restraints.Add(cuffedshoes)*/
+	//if(prisoner_shoes)
+		//restraints.Add(prisoner_shoes)
+	if(prisoner_shoes)
+		restraints.Add(prisoner_shoes)
 	if(some_manner_of_cage)
 		restraints.Add(some_manner_of_cage)
 
 	for(var/obj/restraint as anything in restraints)
-		if(!cuffed_item && restraint.obj_flags & (INDESTRUCTIBLE | ACID_PROOF | UNACIDABLE))
+		if(restraint.obj_flags & (INDESTRUCTIBLE | ACID_PROOF | UNACIDABLE))
 			to_chat(user, span_changeling("We cannot use bio-acid to destroy [restraint]!"))
 			continue
-		cuffed_item = restraint // atom to obj
 		spew_acid(user, restraint)
 		. = TRUE
 	if(space_invader)
@@ -65,10 +73,6 @@
 			addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(playsound), restraint, 'sound/items/tools/welder.ogg', 50, TRUE), beat SECONDS)
 		log_combat(user = user, target = restraint, what_done = "melted restraining container", addition = "(biodegrade)")
 		return
-
-	var/datum/status_effect/cuffed_item/is_bound = user.has_status_effect(/datum/status_effect/cuffed_item)
-	if (is_bound)
-		addtimer(CALLBACK(user, TYPE_PROC_REF(/mob/living, remove_status_effect), /datum/status_effect/cuffed_item), 1.5 SECONDS)
 	addtimer(CALLBACK(restraint, TYPE_PROC_REF(/atom, atom_destruction), ACID), 1.5 SECONDS)
 	log_combat(user = user, target = restraint, what_done = "melted restraining item", addition = "(biodegrade)")
 	user.visible_message(

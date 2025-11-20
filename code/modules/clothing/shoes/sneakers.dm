@@ -180,6 +180,12 @@
 			return
 	return ..()
 
+/obj/item/clothing/shoes/sneakers/orange/proc/remove_cuffs(atom/movable/arrived, atom/movable/gone)
+	QDEL_NULL(attached_cuffs)
+	attached_cuffs = null
+	slowdown = SHOES_SLOWDOWN
+	update_appearance(UPDATE_ICON)
+
 /obj/item/clothing/shoes/sneakers/mime
 	name = "mime shoes"
 	icon_state = "/obj/item/clothing/shoes/sneakers/mime"

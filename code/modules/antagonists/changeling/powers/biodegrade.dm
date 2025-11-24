@@ -20,34 +20,23 @@
 	var/obj/item/clothing/shoes/sneakers/orange/prisoner_shoes = user.get_item_by_slot(ITEM_SLOT_FEET)
 	var/obj/some_manner_of_cage = astype(user.loc, /obj)
 	var/mob/living/space_invader = user.pulledby
+
+	if(!istype(prisoner_shoes, /obj/item/clothing/shoes/sneakers/orange) || !prisoner_shoes?.attached_cuffs)
+		prisoner_shoes = null
 	if(!straitjacket?.breakouttime)
 		straitjacket = null
-	/*var/obj/item/shell = affected_mob.get_item_by_slot(ITEM_SLOT_BACK)
-		if(!istype(shell, /obj/item/storage/backpack/snail))
-			shell = null
-		if(!shell && SPT_PROB(2.5, seconds_per_tick))
-			if(affected_mob.dropItemToGround(affected_mob.get_item_by_slot(ITEM_SLOT_BACK)))*/
-	if (!prisoner_shoes)
-		return ..() // continue
-	if(prisoner_shoes && !istype(prisoner_shoes)) // !prisoner_shoes.attached_cuffs
-		. = prisoner_shoes
-		if (!prisoner_shoes.attached_cuffs)
-			to_chat(world, span_boldannounce("[prisoner_shoes]"), MESSAGE_TYPE_DEBUG)
-			prisoner_shoes = null
-			//prisoner_shoes.remove_cuffs()
 
 	if(!handcuffs && !legcuffs && !straitjacket && !prisoner_shoes && !some_manner_of_cage && !space_invader)
 		user.balloon_alert(user, "already free!")
 		return .
 	..()
+
 	if(handcuffs)
 		restraints.Add(handcuffs)
 	if(legcuffs)
 		restraints.Add(legcuffs)
 	if(straitjacket)
 		restraints.Add(straitjacket)
-	//if(prisoner_shoes)
-		//restraints.Add(prisoner_shoes)
 	if(prisoner_shoes)
 		restraints.Add(prisoner_shoes)
 	if(some_manner_of_cage)
